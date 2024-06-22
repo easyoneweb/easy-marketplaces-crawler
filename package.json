@@ -1,0 +1,42 @@
+{
+  "name": "easy-crawler",
+  "version": "1.0.0",
+  "description": "EasyOneWeb Project: Easy-Crawler. For website crawling and scraping. Application bootstraped with eslint, typescript and husky.",
+  "main": "server.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts --ignore 'public/*' --ignore 'storage/*'",
+    "lint": "eslint --ext \".ts,.js\" --ignore-path .gitignore .",
+    "lintfix": "eslint --ext \".ts,.js\" --ignore-path .gitignore . --fix",
+    "prepare": "husky install"
+  },
+  "keywords": [
+    "template",
+    "app",
+    "nodejs",
+    "easyoneweb"
+  ],
+  "author": "EasyOneWeb LLC",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "dependencies": {
+    "crawlee": "^3.10.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "playwright": "^1.44.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jquery": "^3.5.30",
+    "@types/node": "^20.12.7",
+    "@types/node-cron": "^3.0.11",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "eslint": "^8.57.0",
+    "husky": "^9.0.11",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

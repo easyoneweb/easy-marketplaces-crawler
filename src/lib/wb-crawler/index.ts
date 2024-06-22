@@ -1,6 +1,6 @@
-import { PlaywrightCrawler } from "crawlee";
+import { PlaywrightCrawler } from 'crawlee';
 import { load } from 'cheerio';
-import { Page } from "playwright";
+import { Page } from 'playwright';
 
 export class WBCrawler {
   constructor() {}
@@ -32,9 +32,9 @@ export class WBCrawler {
     }
   }
 
-  #getLinks(content: any) {
+  #getLinks(content: string) {
     const $ = load(content);
-    let links: Array<string> = [];
+    const links: Array<string> = [];
 
     const nextUrl = $('a.pagination-next.pagination__next.j-next-page').attr('href');
 

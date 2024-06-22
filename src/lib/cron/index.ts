@@ -5,7 +5,7 @@ import { HTML } from '../wb-html';
 
 dotenv.config();
 
-export const wbCrawlerTask = cron.schedule('*/120 * * * *', async () => {
+export const wbCrawlerTask = cron.schedule('0 */2 * * *', async () => {
   const maxRequests = Number(process.env.WB_MAX_REQUESTS) || 1000;
   const scrollTimes = Number(process.env.WB_SCROLL_TIMES) || 15;
   const timeBetweenScrolls = Number(process.env.WB_TIME_BETWEEN_SCROLLS) || 500;

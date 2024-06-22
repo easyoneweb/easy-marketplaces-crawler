@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { PlaywrightCrawler } from "crawlee";
+import { PlaywrightCrawler } from 'crawlee';
 
 type Data = [
   {

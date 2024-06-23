@@ -11,7 +11,7 @@ const ADDITIONAL_PARAMS_BUTTON_NAME = process.env.WB_ADDITIONAL_PARAMS_BUTTON_NA
 export class WBFiles {
   constructor() {}
 
-  async saveFiles() {
+  async saveFiles(maxConcurrentRequests: number) {
     this.#removeCurrentHtmlFiles();
 
     const data = JSON.parse(fs.readFileSync(__dirname + '/../../public/data/result.json').toString()) as unknown as Data;
@@ -21,11 +21,11 @@ export class WBFiles {
       links = [...links, ...item.links];
     });
 
-    const crawler = await this.#createCrawler(links.length);
+    const crawler = await this.#createCrawler(links.length, maxConcurrentRequests);
     await crawler.run(links);
   }
 
-  async #createCrawler(maxRequests: number) {
+  async #createCrawler(maxRequests: number, maxConcurrentRequests: number) {
     const SAFEGUARD_MAX_REQUESTS = 10;
 
     return new PlaywrightCrawler({
@@ -42,7 +42,8 @@ export class WBFiles {
         fs.writeFileSync(__dirname + '/../../public/' + fileName + '.html', content);
         fs.writeFileSync(__dirname + '/../../public/' + fileName + '.json', JSON.stringify(productData, null, 2));
       },
-      maxRequestsPerCrawl: maxRequests + SAFEGUARD_MAX_REQUESTS
+      maxRequestsPerCrawl: maxRequests + SAFEGUARD_MAX_REQUESTS,
+      maxConcurrency: maxConcurrentRequests
     });
   }
 

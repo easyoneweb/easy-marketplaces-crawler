@@ -9,6 +9,12 @@ Make sure to install the dependencies:
 npm install
 ```
 
+For PlaywrightCrawler to work, make sure to install Playwright's dependecies, including browsers binaries:
+
+```bash
+npx playwright install --with-deps
+```
+
 Environment variables should be put in .env file before building for production. See Environment variables section for more information.
 
 ## Development Server
@@ -35,7 +41,18 @@ npm run preview
 
 ## Environment variables
 
-Application is using environment variables. You have to define: NODE_ENV (development or production), PORT (on which the server will run locally), WB_SELLER_URL (seller's main page on Wildberries), WB_MAX_REQUESTS (max requests to be made per crawl), WB_SCROLL_TIMES (how many times to vertically scroll of the page by 2000px), WB_TIME_BETWEEN_SCROLLS (time in ms between each scroll, try different numbers to achieve full page load including execution of javascript and service workers), WB_ADDITIONAL_PARAMS_BUTTON_NAME (text content of the button for popup show on Wildberries website). You can define all needed variables in .env file in root folder of this application.
+Application is using environment variables. You have to define:
+- NODE_ENV (development or production)
+- PORT (on which the server will run locally)
+- WB_SELLER_URL (seller's main page on Wildberries)
+- WB_MAX_REQUESTS (max requests to be made per crawl, default is 1000)
+- WB_MAX_CONCURRENCY (max concurrent request to handle by the WBCrawler, default is 100)
+- WB_SCROLL_TIMES (how many times to vertically scroll of the page by 2000px, default is 15)
+- WB_TIME_BETWEEN_SCROLLS (time in ms between each scroll, try different numbers to achieve full page load including execution of javascript and service workers, default is 500)
+- WB_ADDITIONAL_PARAMS_BUTTON_NAME (text content of the button for popup show on Wildberries website)
+- CRAWLEE_MEMORY_MBYTES (allowed memory pool to use by Crawlee library, default is 2048).
+
+You can define all needed variables in .env file in root folder of this application.
 
 ## Additional information
 

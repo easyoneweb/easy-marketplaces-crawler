@@ -5,7 +5,7 @@ import { Page } from 'playwright';
 export class WBCrawler {
   constructor() {}
 
-  createCrawler(maxRequests: number, scrollTimes: number, timeBetweenScrolls: number, waitForScrolls = this.#waitForScrolls, getLinks = this.#getLinks): PlaywrightCrawler {
+  createCrawler(maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, waitForScrolls = this.#waitForScrolls, getLinks = this.#getLinks): PlaywrightCrawler {
     return new PlaywrightCrawler({
       async requestHandler({ request, page, enqueueLinks, pushData }) {
         await waitForScrolls(page, scrollTimes, timeBetweenScrolls);
@@ -21,7 +21,8 @@ export class WBCrawler {
           });
         }
       },
-      maxRequestsPerCrawl: maxRequests
+      maxRequestsPerCrawl: maxRequests,
+      maxConcurrency: maxConcurrentRequests
     });
   }
 

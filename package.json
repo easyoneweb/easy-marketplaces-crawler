@@ -9,7 +9,7 @@
     "dev": "nodemon src/server.ts --ignore 'public/*' --ignore 'storage/*'",
     "lint": "eslint --ext \".ts,.js\" --ignore-path .gitignore .",
     "lintfix": "eslint --ext \".ts,.js\" --ignore-path .gitignore . --fix",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "keywords": [
     "template",

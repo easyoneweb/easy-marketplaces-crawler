@@ -28,7 +28,8 @@ export class WBFiles {
 
     return new PlaywrightCrawler({
       async requestHandler({ request, page }) {
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(2000);
+        
         await page.getByRole('button', { name: additionalParamsButtonName }).click();
         await page.waitForTimeout(500);
 

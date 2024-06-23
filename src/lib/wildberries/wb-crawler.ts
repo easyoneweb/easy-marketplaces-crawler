@@ -1,14 +1,16 @@
 import { PlaywrightCrawler } from 'crawlee';
 import { load } from 'cheerio';
-import { Page } from 'playwright';
 
 export class WBCrawler {
   constructor() {}
 
-  createCrawler(maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, waitForScrolls = this.#waitForScrolls, getLinks = this.#getLinks): PlaywrightCrawler {
+  createCrawler(maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, getLinks = this.#getLinks): PlaywrightCrawler {
     return new PlaywrightCrawler({
       async requestHandler({ request, page, enqueueLinks, pushData }) {
-        await waitForScrolls(page, scrollTimes, timeBetweenScrolls);
+        for (let i = 0; i < scrollTimes; i++) {
+          await page.waitForTimeout(timeBetweenScrolls);
+          await page.evaluate(() => window.scrollBy(0, 2000));
+        }
 
         const content = await page.content();
         const { nextUrl, links } = getLinks(content);
@@ -24,13 +26,6 @@ export class WBCrawler {
       maxRequestsPerCrawl: maxRequests,
       maxConcurrency: maxConcurrentRequests
     });
-  }
-
-  async #waitForScrolls(page: Page, scrollTimes: number, timeBetweenScrolls: number): Promise<void> {
-    for (let i = 0; i < scrollTimes; i++) {
-      await page.waitForTimeout(timeBetweenScrolls);
-      await page.evaluate(() => window.scrollBy(0, 2000));
-    }
   }
 
   #getLinks(content: string) {

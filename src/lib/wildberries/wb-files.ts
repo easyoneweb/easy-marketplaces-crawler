@@ -6,12 +6,10 @@ import type { Data } from '../../../types';
 
 dotenv.config();
 
-const ADDITIONAL_PARAMS_BUTTON_NAME = process.env.WB_ADDITIONAL_PARAMS_BUTTON_NAME || '';
-
 export class WBFiles {
   constructor() {}
 
-  async saveFiles(maxConcurrentRequests: number) {
+  async saveFiles(maxConcurrentRequests: number, additionalParamsButtonName: string) {
     this.#removeCurrentHtmlFiles();
 
     const data = JSON.parse(fs.readFileSync(__dirname + '/../../public/data/result.json').toString()) as unknown as Data;
@@ -21,17 +19,17 @@ export class WBFiles {
       links = [...links, ...item.links];
     });
 
-    const crawler = await this.#createCrawler(links.length, maxConcurrentRequests);
+    const crawler = await this.#createCrawler(links.length, maxConcurrentRequests, additionalParamsButtonName);
     await crawler.run(links);
   }
 
-  async #createCrawler(maxRequests: number, maxConcurrentRequests: number) {
+  async #createCrawler(maxRequests: number, maxConcurrentRequests: number, additionalParamsButtonName: string) {
     const SAFEGUARD_MAX_REQUESTS = 10;
 
     return new PlaywrightCrawler({
       async requestHandler({ request, page }) {
         await page.waitForTimeout(500);
-        await page.getByRole('button', { name: ADDITIONAL_PARAMS_BUTTON_NAME }).click();
+        await page.getByRole('button', { name: additionalParamsButtonName }).click();
         await page.waitForTimeout(500);
 
         const url = request.loadedUrl;

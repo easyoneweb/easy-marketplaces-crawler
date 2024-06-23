@@ -50,6 +50,7 @@ Application is using environment variables. You have to define:
 - WB_SCROLL_TIMES (how many times to vertically scroll of the page by 2000px, default is 15)
 - WB_TIME_BETWEEN_SCROLLS (time in ms between each scroll, try different numbers to achieve full page load including execution of javascript and service workers, default is 500)
 - WB_ADDITIONAL_PARAMS_BUTTON_NAME (text content of the button for popup show on Wildberries website)
+- WB_CRAWLER_CRON (cron time for running wb crawler task, default is every 12th hour which is 0 */12 * * *)
 - CRAWLEE_MEMORY_MBYTES (allowed memory pool to use by Crawlee library, default is 2048).
 
 You can define all needed variables in .env file in root folder of this application.

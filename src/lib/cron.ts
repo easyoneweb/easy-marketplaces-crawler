@@ -5,18 +5,20 @@ import { WBFiles } from './wildberries/wb-files';
 
 dotenv.config();
 
-export const wbCrawlerTask = cron.schedule('0 */12 * * *', async () => {
-  const maxRequests = Number(process.env.WB_MAX_REQUESTS) || 1000;
-  const maxConcurrentRequests = Number(process.env.WB_MAX_CONCURRENCY) || 100;
-  const scrollTimes = Number(process.env.WB_SCROLL_TIMES) || 15;
-  const timeBetweenScrolls = Number(process.env.WB_TIME_BETWEEN_SCROLLS) || 500;
+const WB_SELLER_URL = process.env.WB_SELLER_URL || '';
+const WB_MAX_REQUESTS = Number(process.env.WB_MAX_REQUESTS) || 1000;
+const WB_MAX_CONCURRENCY = Number(process.env.WB_MAX_CONCURRENCY) || 100;
+const WB_SCROLL_TIMES = Number(process.env.WB_SCROLL_TIMES) || 15;
+const WB_TIME_BETWEEN_SCROLLS = Number(process.env.WB_TIME_BETWEEN_SCROLLS) || 500;
+const WB_CRAWLER_CRON = process.env.WB_CRAWLER_CRON || '0 */12 * * *';
 
-  const crawler = new WBCrawler().createCrawler(maxRequests, maxConcurrentRequests, scrollTimes, timeBetweenScrolls);
+export const wbCrawlerTask = cron.schedule(WB_CRAWLER_CRON, async () => {
+  const crawler = new WBCrawler().createCrawler(WB_MAX_REQUESTS, WB_MAX_CONCURRENCY, WB_SCROLL_TIMES, WB_TIME_BETWEEN_SCROLLS);
   const wbFiles = new WBFiles();
 
-  await crawler.run([ process.env.WB_SELLER_URL || '' ]);
+  await crawler.run([ WB_SELLER_URL ]);
   await crawler.exportData(__dirname + '/../public/data/result.json');
-  await wbFiles.saveFiles(maxConcurrentRequests);
+  await wbFiles.saveFiles(WB_MAX_CONCURRENCY);
 }, {
   scheduled: false
 });

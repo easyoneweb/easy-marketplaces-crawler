@@ -27,8 +27,8 @@ export class WBCrawler {
       maxConcurrency: maxConcurrentRequests,
       preNavigationHooks: [
         async (crawlingContext) => {
-            const { page } = crawlingContext;
-            await page.setViewportSize({ width: 1700, height: 1300 });
+          const { page } = crawlingContext;
+          await page.setViewportSize({ width: 1700, height: 1300 });
         },
       ]
     });

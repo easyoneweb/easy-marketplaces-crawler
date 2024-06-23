@@ -9,7 +9,7 @@ export class WBCrawler {
       async requestHandler({ request, page, enqueueLinks, pushData }) {
         for (let i = 0; i < scrollTimes; i++) {
           await page.waitForTimeout(timeBetweenScrolls);
-          await page.evaluate(() => window.scrollBy(0, 2000));
+          await page.evaluate(() => window.scrollBy(0, 500));
         }
 
         const content = await page.content();
@@ -24,7 +24,13 @@ export class WBCrawler {
         }
       },
       maxRequestsPerCrawl: maxRequests,
-      maxConcurrency: maxConcurrentRequests
+      maxConcurrency: maxConcurrentRequests,
+      preNavigationHooks: [
+        async (crawlingContext) => {
+            const { page } = crawlingContext;
+            await page.setViewportSize({ width: 1700, height: 1300 });
+        },
+      ]
     });
   }
 

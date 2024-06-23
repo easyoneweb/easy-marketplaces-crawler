@@ -7,6 +7,8 @@ export class WBCrawler {
   createCrawler(maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, getLinks = this.#getLinks): PlaywrightCrawler {
     return new PlaywrightCrawler({
       async requestHandler({ request, page, enqueueLinks, pushData }) {
+        await page.waitForTimeout(2000);
+
         for (let i = 0; i < scrollTimes; i++) {
           await page.waitForTimeout(timeBetweenScrolls);
           await page.evaluate(() => window.scrollBy(0, 500));

@@ -64,4 +64,5 @@ Easy-Crawler is built on NodeJS (^18.20.2), ExpressJS (^4). Please, before proce
 EasyOneWeb LLC 2020 - 2024. All rights reserved. See LICENSE.md for licensing and usage information.
 
 # TODO:
+- locate warehouse stock of the product
 - migrate scraping from cheerio to PlayWright's locator

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import express, { Express } from 'express';
 import dotenv from 'dotenv';
-import { wbCrawlerTask } from './lib/cron';
+import { wbCrawlerTask, ozonCrawlerTask } from './lib/cron';
 
 dotenv.config();
 
@@ -12,6 +12,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname + '/public'));
 
 wbCrawlerTask.start();
+ozonCrawlerTask.start();
 
 app.get('/files', async (req, res) => {
   let files = fs.readdirSync(__dirname + '/public');

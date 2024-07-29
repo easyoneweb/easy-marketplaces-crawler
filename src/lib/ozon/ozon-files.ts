@@ -1,46 +1,46 @@
 import fs from 'fs';
 import { PlaywrightCrawler } from 'crawlee';
 import dotenv from 'dotenv';
-import { getWBProductData } from '../helpers';
+import { getOzonProductData } from '../helpers';
 import type { Data } from '../../../types';
 
 dotenv.config();
 
-export class WBFiles {
+export class OZONFiles {
   constructor() {}
 
-  async saveFiles(maxConcurrentRequests: number, additionalParamsButtonName: string) {
-    const data = JSON.parse(fs.readFileSync(__dirname + '/../../public/data/wb-result.json').toString()) as unknown as Data;
+  async saveFiles(maxConcurrentRequests: number) {
+    const data = JSON.parse(fs.readFileSync(__dirname + '/../../public/data/ozon-result.json').toString()) as unknown as Data;
     let links: Array<string> = [];
 
     data.forEach(item => {
       links = [...links, ...item.links];
     });
 
-    const crawler = await this.#createCrawler(links.length, maxConcurrentRequests, additionalParamsButtonName);
-    await crawler.run(links);
+    const crawler = await this.#createCrawler(links.length, maxConcurrentRequests);
+    await crawler.run([links[0]]);
   }
 
-  async #createCrawler(maxRequests: number, maxConcurrentRequests: number, additionalParamsButtonName: string) {
+  async #createCrawler(maxRequests: number, maxConcurrentRequests: number) {
     const SAFEGUARD_MAX_REQUESTS = 10;
 
     return new PlaywrightCrawler({
       async requestHandler({ request, page }) {
         await page.waitForTimeout(2000);
-        
-        await page.getByRole('button', { name: additionalParamsButtonName }).click();
-        await page.waitForTimeout(500);
 
         const url = request.loadedUrl;
         const fileName = url.split('/')[4];
         const content = await page.content();
-        const productData = getWBProductData(content);
+        const productData = getOzonProductData(content);
         
         fs.writeFileSync(__dirname + '/../../public/' + fileName + '.html', content);
         fs.writeFileSync(__dirname + '/../../public/' + fileName + '.json', JSON.stringify(productData, null, 2));
       },
       maxRequestsPerCrawl: maxRequests + SAFEGUARD_MAX_REQUESTS,
-      maxConcurrency: maxConcurrentRequests
+      maxConcurrency: maxConcurrentRequests,
+      launchContext: {
+        userAgent: 'PostmanRuntime/7.39.0'
+      },
     });
   }
 }

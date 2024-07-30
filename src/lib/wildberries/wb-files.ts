@@ -1,7 +1,7 @@
 import fs from 'fs';
-import { PlaywrightCrawler } from 'crawlee';
+import { PlaywrightCrawler, RequestQueue } from 'crawlee';
 import dotenv from 'dotenv';
-import { getWBProductData } from '../helpers';
+import { getWBProductData, createRequestQueueUrlArray } from '../helpers';
 import type { Data } from '../../../types';
 
 dotenv.config();
@@ -11,20 +11,26 @@ export class WBFiles {
 
   async saveFiles(maxConcurrentRequests: number, additionalParamsButtonName: string) {
     const data = JSON.parse(fs.readFileSync(__dirname + '/../../public/data/wb-result.json').toString()) as unknown as Data;
+    const requestQueue = await RequestQueue.open();
     let links: Array<string> = [];
 
     data.forEach(item => {
       links = [...links, ...item.links];
     });
 
-    const crawler = await this.#createCrawler(links.length, maxConcurrentRequests, additionalParamsButtonName);
+    await requestQueue.addRequests(createRequestQueueUrlArray(links));
+
+    const crawler = await this.#createCrawler(requestQueue, links.length, maxConcurrentRequests, additionalParamsButtonName);
+    
     await crawler.run(links);
+    await requestQueue.drop();
   }
 
-  async #createCrawler(maxRequests: number, maxConcurrentRequests: number, additionalParamsButtonName: string) {
+  async #createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number, additionalParamsButtonName: string) {
     const SAFEGUARD_MAX_REQUESTS = 10;
 
     return new PlaywrightCrawler({
+      requestQueue,
       async requestHandler({ request, page }) {
         await page.waitForTimeout(2000);
         

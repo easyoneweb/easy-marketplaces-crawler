@@ -1,11 +1,12 @@
-import { PlaywrightCrawler } from 'crawlee';
+import { PlaywrightCrawler, RequestQueue } from 'crawlee';
 import { load } from 'cheerio';
 
 export class WBCrawler {
   constructor() {}
 
-  createCrawler(maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, getLinks = this.#getLinks): PlaywrightCrawler {
+  createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, getLinks = this.#getLinks): PlaywrightCrawler {
     return new PlaywrightCrawler({
+      requestQueue,
       async requestHandler({ request, page, enqueueLinks, pushData }) {
         await page.waitForTimeout(2000);
 

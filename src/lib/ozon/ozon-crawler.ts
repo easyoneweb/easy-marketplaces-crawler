@@ -1,11 +1,12 @@
-import { PlaywrightCrawler } from 'crawlee';
+import { PlaywrightCrawler, RequestQueue } from 'crawlee';
 import { load } from 'cheerio';
 
 export class OZONCrawler {
   constructor() {}
 
-  createCrawler(maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, getLinks = this.#getLinks): PlaywrightCrawler {
+  createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, getLinks = this.#getLinks): PlaywrightCrawler {
     return new PlaywrightCrawler({
+      requestQueue,
       async requestHandler({ request, page, enqueueLinks, pushData }) {
         await page.waitForTimeout(2000);
 
@@ -46,7 +47,7 @@ export class OZONCrawler {
     const links: Array<string> = [];
 
     // ANCHOR CLASSES CHANGES FREQUENTLY!
-    let nextUrl = $('a.e6o.b219-a0.b219-b6.b219-b1').attr('href');
+    let nextUrl = $('a.e3p.b219-a0.b219-b6.b219-b1').attr('href');
     if (nextUrl) nextUrl = OZON_BASE_URL + nextUrl;
 
     $('div.tile-root a.tile-hover-target').each(function() {

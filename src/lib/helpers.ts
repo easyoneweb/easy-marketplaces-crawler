@@ -97,3 +97,11 @@ export function getOzonProductData(content: string): Product {
     description: description
   };
 }
+
+export function createRequestQueueUrlArray(links: Array<string>) {
+  return links.map(link => {
+    return {
+      url: link
+    };
+  });
+}

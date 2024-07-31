@@ -1,6 +1,6 @@
 {
   "name": "easy-crawler",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "EasyOneWeb Project: Easy-Crawler. For website crawling and scraping. Application bootstraped with eslint, typescript and husky.",
   "main": "server.js",
   "scripts": {

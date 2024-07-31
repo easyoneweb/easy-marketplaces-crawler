@@ -1,9 +1,9 @@
-export type Data = [
-  {
-    url: string,
-    links: Array<string>
-  }
-]
+export type Data = [SellerPageLinks] | []
+
+export type SellerPageLinks = {
+  url: string,
+  links: Array<string>
+}
 
 export type Product = {
   title: string,

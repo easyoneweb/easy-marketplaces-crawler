@@ -64,5 +64,6 @@ Easy-Crawler is built on NodeJS (^18.20.2), ExpressJS (^4). Please, before proce
 EasyOneWeb LLC 2020 - 2024. All rights reserved. See LICENSE.md for licensing and usage information.
 
 # TODO:
-- locate warehouse stock of the product
-- migrate scraping from cheerio to PlayWright's locator
+- [X] Released: version 1.1.0. Original task: SAVE EXPORT JSON DATA BY OUR CLASS! NOT BY CRAWLEE STORAGE! Because data persists in datasets, which creates dublicate data in wb-result.json and ozon-result.json!
+- [ ] locate warehouse stock of the product
+- [ ] migrate scraping from cheerio to PlayWright's locator

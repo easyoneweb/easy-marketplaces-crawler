@@ -1,10 +1,14 @@
-import { PlaywrightCrawler, RequestQueue } from 'crawlee';
+import { PlaywrightCrawler, RequestQueue, Dataset } from 'crawlee';
 import { load } from 'cheerio';
 
 export class OZONCrawler {
   constructor() {}
 
-  createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number, getLinks = this.#getLinks): PlaywrightCrawler {
+  async createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number): Promise<PlaywrightCrawler> {
+    const getLinks = this.#getLinks;
+    const dataset = await Dataset.open();
+    await dataset.drop();
+
     return new PlaywrightCrawler({
       requestQueue,
       async requestHandler({ request, page, enqueueLinks, pushData }) {

@@ -28,7 +28,7 @@ export const wbCrawlerTask = cron.schedule(WB_CRAWLER_CRON, async () => {
 
   await requestQueue.addRequest({ url: WB_SELLER_URL });
 
-  const crawler = new WBCrawler().createCrawler(requestQueue, WB_MAX_REQUESTS, WB_MAX_CONCURRENCY, WB_SCROLL_TIMES, WB_TIME_BETWEEN_SCROLLS);
+  const crawler = await new WBCrawler().createCrawler(requestQueue, WB_MAX_REQUESTS, WB_MAX_CONCURRENCY, WB_SCROLL_TIMES, WB_TIME_BETWEEN_SCROLLS);
   const wbFiles = new WBFiles();
 
   await crawler.run([ WB_SELLER_URL ]);
@@ -45,7 +45,7 @@ export const ozonCrawlerTask = cron.schedule(OZON_CRAWLER_CRON, async () => {
 
   await requestQueue.addRequest({ url: OZON_SELLER_URL });
 
-  const crawler = new OZONCrawler().createCrawler(requestQueue, OZON_MAX_REQUESTS, OZON_MAX_CONCURRENCY, OZON_SCROLL_TIMES, OZON_TIME_BETWEEN_SCROLLS);
+  const crawler = await new OZONCrawler().createCrawler(requestQueue, OZON_MAX_REQUESTS, OZON_MAX_CONCURRENCY, OZON_SCROLL_TIMES, OZON_TIME_BETWEEN_SCROLLS);
   const ozonFiles = new OZONFiles();
 
   await crawler.run();

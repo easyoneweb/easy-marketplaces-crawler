@@ -50,8 +50,7 @@ export class OZONCrawler {
     const $ = load(content);
     const links: Array<string> = [];
 
-    // ANCHOR CLASSES CHANGES FREQUENTLY!
-    let nextUrl = $('a.e8p.b219-a0.b219-b6.b219-b1').attr('href');
+    let nextUrl = $('[data-widget=megaPaginator] div div a:last').attr('href');
     if (nextUrl) nextUrl = OZON_BASE_URL + nextUrl;
 
     $('div.tile-root a.tile-hover-target').each(function() {

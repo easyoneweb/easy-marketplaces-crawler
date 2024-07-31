@@ -49,7 +49,7 @@ export class WBCrawler {
 
     $('a.product-card__link.j-card-link').each(function() {
       const href = $(this).attr('href');
-      if (href) links.push(href);
+      if (href) links.push(href.split('?')[0]);
     });
 
     return { nextUrl: nextUrl, links: links };

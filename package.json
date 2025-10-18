@@ -8,8 +8,7 @@
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts --ignore 'public/*' --ignore 'storage/*'",
     "lint": "eslint --ext \".ts,.js\" --ignore-path .gitignore .",
-    "lintfix": "eslint --ext \".ts,.js\" --ignore-path .gitignore . --fix",
-    "prepare": "husky"
+    "lintfix": "eslint --ext \".ts,.js\" --ignore-path .gitignore . --fix"
   },
   "keywords": [
     "template",
@@ -26,7 +25,7 @@
     "node-cron": "^3.0.3",
     "playwright": "^1.44.1",
     "playwright-extra": "^4.3.6",
-    "playwright-extra-plugin-stealth": "^0.0.1"
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -36,9 +35,8 @@
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "eslint": "^8.57.0",
-    "husky": "^9.0.11",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.9.3"
   }
 }

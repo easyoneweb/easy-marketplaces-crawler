@@ -1,6 +1,6 @@
 import { PlaywrightCrawler, RequestQueue, Dataset } from 'crawlee';
 import { chromium } from 'playwright-extra';
-import stealth from 'playwright-extra-plugin-stealth';
+import stealth from 'puppeteer-extra-plugin-stealth';
 import { load } from 'cheerio';
 import fs from 'fs';
 

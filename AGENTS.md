@@ -20,8 +20,8 @@ npx playwright install --with-deps  # required before first run
 
 ## Key files (not obvious from filenames)
 
-- `src/server.ts` — Express entry point; starts cron jobs on boot
-- `src/lib/cron.ts` — Two cron tasks (`wbCrawlerTask`, `ozonCrawlerTask`); they are created with `scheduled: false`, so `.start()` must be called explicitly (done in `server.ts`)
+- `src/server.ts` — Express entry point; conditionally starts cron jobs on boot (only if `*_SELLER_URL` env var is set)
+- `src/lib/cron.ts` — Two cron tasks (`wbCrawlerTask`, `ozonCrawlerTask`); created with `scheduled: false` so `.start()` must be called explicitly (done in `server.ts`). Handlers skip execution early if the corresponding `*_SELLER_URL` is empty.
 - `src/lib/helpers.ts` — Cheerio-based HTML parsers (`getWBProductData`, `getOzonProductData`) that extract `Product` types
 - `src/lib/wildberries/wb-crawler.ts` — Paginates the seller page, collects product card links via Cheerio, pushes to Crawlee Dataset
 - `src/lib/wildberries/wb-files.ts` — Re-reads the Dataset JSON, then crawls each product page to save `.html` and `.json` to `public/`
@@ -41,23 +41,23 @@ Crawled output lands in `src/public/` (gitignored). The Dataset JSON is written 
 
 Loaded from `.env` (gitignored). Required vars:
 
-| Variable                           | Purpose                       | Default                         |
-| ---------------------------------- | ----------------------------- | ------------------------------- |
-| `PORT`                             | Express listen port           | `3000`                          |
-| `WB_SELLER_URL`                    | WB seller catalog start URL   | (none)                          |
-| `WB_CRAWLER_CRON`                  | Cron schedule for WB crawl    | `0 */12 * * *`                  |
-| `WB_MAX_REQUESTS`                  | Max pages per crawl           | `1000`                          |
-| `WB_MAX_CONCURRENCY`               | Concurrent browser tabs       | `100`                           |
-| `WB_SCROLL_TIMES`                  | Vertical scrolls per page     | `15`                            |
-| `WB_TIME_BETWEEN_SCROLLS`          | ms between scrolls            | `500`                           |
-| `WB_ADDITIONAL_PARAMS_BUTTON_NAME` | Button text for popup         | `Все характеристики и описание` |
-| `OZON_SELLER_URL`                  | OZON seller catalog start URL | (none)                          |
-| `OZON_CRAWLER_CRON`                | Cron schedule for OZON crawl  | `0 */12 * * *`                  |
-| `OZON_MAX_REQUESTS`                | Max pages per crawl           | `1000`                          |
-| `OZON_MAX_CONCURRENCY`             | Concurrent browser tabs       | `100`                           |
-| `OZON_SCROLL_TIMES`                | Vertical scrolls per page     | `15`                            |
-| `OZON_TIME_BETWEEN_SCROLLS`        | ms between scrolls            | `500`                           |
-| `CRAWLEE_MEMORY_MBYTES`            | Crawlee memory pool (MB)      | `2048`                          |
+| Variable                           | Purpose                                                      | Default                         |
+| ---------------------------------- | ------------------------------------------------------------ | ------------------------------- |
+| `PORT`                             | Express listen port                                          | `3000`                          |
+| `WB_SELLER_URL`                    | WB seller catalog start URL (empty = WB crawler skipped)     | (none)                          |
+| `WB_CRAWLER_CRON`                  | Cron schedule for WB crawl                                   | `0 */12 * * *`                  |
+| `WB_MAX_REQUESTS`                  | Max pages per crawl                                          | `1000`                          |
+| `WB_MAX_CONCURRENCY`               | Concurrent browser tabs                                      | `100`                           |
+| `WB_SCROLL_TIMES`                  | Vertical scrolls per page                                    | `15`                            |
+| `WB_TIME_BETWEEN_SCROLLS`          | ms between scrolls                                           | `500`                           |
+| `WB_ADDITIONAL_PARAMS_BUTTON_NAME` | Button text for popup                                        | `Все характеристики и описание` |
+| `OZON_SELLER_URL`                  | OZON seller catalog start URL (empty = OZON crawler skipped) | (none)                          |
+| `OZON_CRAWLER_CRON`                | Cron schedule for OZON crawl                                 | `0 */12 * * *`                  |
+| `OZON_MAX_REQUESTS`                | Max pages per crawl                                          | `1000`                          |
+| `OZON_MAX_CONCURRENCY`             | Concurrent browser tabs                                      | `100`                           |
+| `OZON_SCROLL_TIMES`                | Vertical scrolls per page                                    | `15`                            |
+| `OZON_TIME_BETWEEN_SCROLLS`        | ms between scrolls                                           | `500`                           |
+| `CRAWLEE_MEMORY_MBYTES`            | Crawlee memory pool (MB)                                     | `2048`                          |
 
 ## Gotchas
 
@@ -67,6 +67,7 @@ Loaded from `.env` (gitignored). Required vars:
 - **Output files** are written to `src/public/` which is gitignored. The `data/` subdirectory is not excluded by `.gitignore` but lives under `public/` so it's covered.
 - **The Dataset is dropped before each crawl** (`await dataset.drop()`) to avoid appending to stale data.
 - **WBFiles has a `SAFEGUARD_MAX_REQUESTS = 10`** — max requests is `links.length + 10` to tolerate retries.
+- **Crawlers are skipped when their URL is empty**: both `server.ts` (won't `.start()` the cron timer) and `cron.ts` (handler returns early) guard against empty `*_SELLER_URL`. To disable a crawler, leave its URL blank in `.env`.
 
 ## Code style
 

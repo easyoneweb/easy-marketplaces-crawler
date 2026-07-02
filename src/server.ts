@@ -11,8 +11,15 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname + '/public'));
 
-wbCrawlerTask.start();
-ozonCrawlerTask.start();
+if (process.env.WB_SELLER_URL) {
+  wbCrawlerTask.start();
+  console.log('[server] WB crawler scheduled');
+}
+
+if (process.env.OZON_SELLER_URL) {
+  ozonCrawlerTask.start();
+  console.log('[server] OZON crawler scheduled');
+}
 
 app.get('/files', async (req, res) => {
   let files = fs.readdirSync(__dirname + '/public');

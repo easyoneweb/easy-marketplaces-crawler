@@ -30,6 +30,11 @@ const OZON_CRAWLER_CRON = process.env.OZON_CRAWLER_CRON || '0 */12 * * *';
 export const wbCrawlerTask = cron.schedule(
   WB_CRAWLER_CRON,
   async () => {
+    if (!WB_SELLER_URL) {
+      console.log('[wb-crawler] WB_SELLER_URL is empty, skipping crawl');
+      return;
+    }
+
     const requestQueue = await RequestQueue.open();
 
     await requestQueue.addRequest({ url: WB_SELLER_URL });
@@ -60,6 +65,11 @@ export const wbCrawlerTask = cron.schedule(
 export const ozonCrawlerTask = cron.schedule(
   OZON_CRAWLER_CRON,
   async () => {
+    if (!OZON_SELLER_URL) {
+      console.log('[ozon-crawler] OZON_SELLER_URL is empty, skipping crawl');
+      return;
+    }
+
     const requestQueue = await RequestQueue.open();
 
     await requestQueue.addRequest({ url: OZON_SELLER_URL });

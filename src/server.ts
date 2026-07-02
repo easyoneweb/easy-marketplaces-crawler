@@ -16,8 +16,8 @@ ozonCrawlerTask.start();
 
 app.get('/files', async (req, res) => {
   let files = fs.readdirSync(__dirname + '/public');
-  
-  files = files.filter(file => file !== 'data');
+
+  files = files.filter((file) => file !== 'data');
 
   res.status(200).json({ message: 'success', files: files });
 });

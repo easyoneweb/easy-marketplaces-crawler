@@ -11,7 +11,7 @@ export function getWBProductData(content: string): Product {
   const additionalParams: Array<ParamBlock> = [];
   const description: string = $('p.option__text').text().trim();
 
-  $('div.slide__content.img-plug img').each(function() {
+  $('div.slide__content.img-plug img').each(function () {
     let url = $(this).prop('src');
     url = url?.replace('c246x328', 'c516x688');
 
@@ -20,29 +20,33 @@ export function getWBProductData(content: string): Product {
     images.push({ url: url });
   });
 
-  $('div.product-page__options table.product-params__table tr').each(function() {
-    const paramName = $(this).find('th').text().trim();
-    const paramValue = $(this).find('td').text().trim();
-
-    params.push({ name: paramName, value: paramValue });
-  });
-
-  $('div.popup__content table.product-params__table').each(function() {
-    const paramBlock: ParamBlock = {
-      name: $(this).find('caption').text().trim(),
-      params: []
-    };
-    
-    $(this).find('tr').each(function() {
+  $('div.product-page__options table.product-params__table tr').each(
+    function () {
       const paramName = $(this).find('th').text().trim();
       const paramValue = $(this).find('td').text().trim();
 
-      paramBlock.params.push({ name: paramName, value: paramValue });
-    });
+      params.push({ name: paramName, value: paramValue });
+    },
+  );
+
+  $('div.popup__content table.product-params__table').each(function () {
+    const paramBlock: ParamBlock = {
+      name: $(this).find('caption').text().trim(),
+      params: [],
+    };
+
+    $(this)
+      .find('tr')
+      .each(function () {
+        const paramName = $(this).find('th').text().trim();
+        const paramValue = $(this).find('td').text().trim();
+
+        paramBlock.params.push({ name: paramName, value: paramValue });
+      });
 
     additionalParams.push(paramBlock);
   });
-  
+
   if (!price) price = '0';
 
   return {
@@ -51,24 +55,31 @@ export function getWBProductData(content: string): Product {
     images: images,
     params: params,
     additionalParams: additionalParams,
-    description: description
+    description: description,
   };
 }
-
 
 export function getOzonProductData(content: string): Product {
   const $ = load(content);
 
   const title: string = $('[data-widget="webProductHeading"] h1').text().trim();
-  let price: string = $('[data-widget="webPrice"] div div button span div div div div span').text().trim();
+  let price: string = $(
+    '[data-widget="webPrice"] div div button span div div div div span',
+  )
+    .text()
+    .trim();
   const images: Array<Image> = [];
   const params: Array<Param> = [];
   const additionalParams: Array<ParamBlock> = [];
-  const description: string = $('#section-description div div div div').text().trim();
+  const description: string = $('#section-description div div div div')
+    .text()
+    .trim();
 
-  $('[data-widget=webGallery] div div div div div div div div div div div img').each(function() {
+  $(
+    '[data-widget=webGallery] div div div div div div div div div div div img',
+  ).each(function () {
     let src = $(this).attr('src');
-    
+
     if (src) {
       src = src.replace('wc50', 'wc1000');
       images.push({ url: src });
@@ -80,12 +91,12 @@ export function getOzonProductData(content: string): Product {
   const paramValue = $('#section-description div div div p').text().trim();
   params.push({ name: paramName, value: paramValue });
 
-  $('#section-characteristics div div div dl').each(function() {
+  $('#section-characteristics div div div dl').each(function () {
     const paramName = $(this).find('dt').text().trim();
     const paramValue = $(this).find('dd').text().trim();
     params.push({ name: paramName, value: paramValue });
   });
-  
+
   if (!price) price = '0';
 
   return {
@@ -94,14 +105,14 @@ export function getOzonProductData(content: string): Product {
     images: images,
     params: params,
     additionalParams: additionalParams,
-    description: description
+    description: description,
   };
 }
 
 export function createRequestQueueUrlArray(links: Array<string>) {
-  return links.map(link => {
+  return links.map((link) => {
     return {
-      url: link
+      url: link,
     };
   });
 }

@@ -5,11 +5,7 @@ logs
 .DS_Store
 .fleet
 .idea
-.kilo
 .env
 .env.*
-!.env.example
 src/public
 storage
-public/*
-GEMINI.md

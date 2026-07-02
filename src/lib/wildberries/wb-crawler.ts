@@ -9,7 +9,13 @@ chromium.use(stealth());
 export class WBCrawler {
   constructor() {}
 
-  async createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number): Promise<PlaywrightCrawler> {
+  async createCrawler(
+    requestQueue: RequestQueue,
+    maxRequests: number,
+    maxConcurrentRequests: number,
+    scrollTimes: number,
+    timeBetweenScrolls: number,
+  ): Promise<PlaywrightCrawler> {
     const getLinks = this.#getLinks;
     const dataset = await Dataset.open();
     await dataset.drop();
@@ -21,7 +27,8 @@ export class WBCrawler {
       },
       launchContext: {
         launcher: chromium,
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        userAgent:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
       },
       async requestHandler({ request, page, enqueueLinks, pushData }) {
         await page.waitForTimeout(2000 + Math.random() * 1000);
@@ -32,14 +39,17 @@ export class WBCrawler {
         }
 
         const content = await page.content();
-        fs.writeFileSync(__dirname + '/../../public/' + 'test' + '.html', content);
+        fs.writeFileSync(
+          __dirname + '/../../public/' + 'test' + '.html',
+          content,
+        );
         const { nextUrl, links } = getLinks(content);
 
         await pushData({ url: request.loadedUrl, links: links });
 
         if (nextUrl) {
           await enqueueLinks({
-            globs: [ nextUrl ]
+            globs: [nextUrl],
           });
         }
       },
@@ -50,7 +60,7 @@ export class WBCrawler {
           const { page } = crawlingContext;
           await page.setViewportSize({ width: 1920, height: 1080 });
         },
-      ]
+      ],
     });
   }
 
@@ -58,9 +68,11 @@ export class WBCrawler {
     const $ = load(content);
     const links: Array<string> = [];
 
-    const nextUrl = $('a.pagination-next.pagination__next.j-next-page').attr('href');
+    const nextUrl = $('a.pagination-next.pagination__next.j-next-page').attr(
+      'href',
+    );
 
-    $('a.product-card__link.j-card-link').each(function() {
+    $('a.product-card__link.j-card-link').each(function () {
       const href = $(this).attr('href');
       if (href) links.push(href.split('?')[0]);
     });

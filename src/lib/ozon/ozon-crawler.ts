@@ -4,7 +4,13 @@ import { load } from 'cheerio';
 export class OZONCrawler {
   constructor() {}
 
-  async createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number, scrollTimes: number, timeBetweenScrolls: number): Promise<PlaywrightCrawler> {
+  async createCrawler(
+    requestQueue: RequestQueue,
+    maxRequests: number,
+    maxConcurrentRequests: number,
+    scrollTimes: number,
+    timeBetweenScrolls: number,
+  ): Promise<PlaywrightCrawler> {
     const getLinks = this.#getLinks;
     const dataset = await Dataset.open();
     await dataset.drop();
@@ -27,21 +33,21 @@ export class OZONCrawler {
 
         if (nextUrl) {
           await enqueueLinks({
-            globs: [ nextUrl ]
+            globs: [nextUrl],
           });
         }
       },
       maxRequestsPerCrawl: maxRequests,
       maxConcurrency: maxConcurrentRequests,
       launchContext: {
-        userAgent: 'PostmanRuntime/7.39.0'
+        userAgent: 'PostmanRuntime/7.39.0',
       },
       preNavigationHooks: [
         async (crawlingContext) => {
           const { page } = crawlingContext;
           await page.setViewportSize({ width: 1700, height: 1300 });
         },
-      ]
+      ],
     });
   }
 
@@ -53,7 +59,7 @@ export class OZONCrawler {
     let nextUrl = $('[data-widget=megaPaginator] div div a:last').attr('href');
     if (nextUrl) nextUrl = OZON_BASE_URL + nextUrl;
 
-    $('div.tile-root a.tile-hover-target').each(function() {
+    $('div.tile-root a.tile-hover-target').each(function () {
       const href = $(this).attr('href');
       if (href) links.push(OZON_BASE_URL + href.split('?')[0]);
     });

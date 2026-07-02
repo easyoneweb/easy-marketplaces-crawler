@@ -1,4 +1,5 @@
 # Easy-Crawler
+
 EasyOneWeb Project: Easy-Crawler. For website crawling and scraping. It is used for crawling marketplaces such as Wildeberries and OZON.
 
 ## Setup
@@ -42,6 +43,7 @@ npm run preview
 ## Environment variables
 
 Application is using environment variables. You have to define:
+
 - NODE_ENV (development or production)
 - PORT (on which the server will run locally)
 - WB_SELLER_URL (seller's main page on Wildberries)
@@ -64,6 +66,7 @@ Easy-Crawler is built on NodeJS (^18.20.2), ExpressJS (^4). Please, before proce
 EasyOneWeb LLC 2020 - 2024. All rights reserved. See LICENSE.md for licensing and usage information.
 
 # TODO:
-- [X] Released: version 1.1.0. Original task: SAVE EXPORT JSON DATA BY OUR CLASS! NOT BY CRAWLEE STORAGE! Because data persists in datasets, which creates dublicate data in wb-result.json and ozon-result.json!
+
+- [x] Released: version 1.1.0. Original task: SAVE EXPORT JSON DATA BY OUR CLASS! NOT BY CRAWLEE STORAGE! Because data persists in datasets, which creates dublicate data in wb-result.json and ozon-result.json!
 - [ ] locate warehouse stock of the product
 - [ ] migrate scraping from cheerio to PlayWright's locator

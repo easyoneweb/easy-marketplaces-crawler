@@ -41,23 +41,23 @@ Crawled output lands in `src/public/` (gitignored). The Dataset JSON is written 
 
 Loaded from `.env` (gitignored). Required vars:
 
-| Variable | Purpose | Default |
-|---|---|---|
-| `PORT` | Express listen port | `3000` |
-| `WB_SELLER_URL` | WB seller catalog start URL | (none) |
-| `WB_CRAWLER_CRON` | Cron schedule for WB crawl | `0 */12 * * *` |
-| `WB_MAX_REQUESTS` | Max pages per crawl | `1000` |
-| `WB_MAX_CONCURRENCY` | Concurrent browser tabs | `100` |
-| `WB_SCROLL_TIMES` | Vertical scrolls per page | `15` |
-| `WB_TIME_BETWEEN_SCROLLS` | ms between scrolls | `500` |
-| `WB_ADDITIONAL_PARAMS_BUTTON_NAME` | Button text for popup | `Все характеристики и описание` |
-| `OZON_SELLER_URL` | OZON seller catalog start URL | (none) |
-| `OZON_CRAWLER_CRON` | Cron schedule for OZON crawl | `0 */12 * * *` |
-| `OZON_MAX_REQUESTS` | Max pages per crawl | `1000` |
-| `OZON_MAX_CONCURRENCY` | Concurrent browser tabs | `100` |
-| `OZON_SCROLL_TIMES` | Vertical scrolls per page | `15` |
-| `OZON_TIME_BETWEEN_SCROLLS` | ms between scrolls | `500` |
-| `CRAWLEE_MEMORY_MBYTES` | Crawlee memory pool (MB) | `2048` |
+| Variable                           | Purpose                       | Default                         |
+| ---------------------------------- | ----------------------------- | ------------------------------- |
+| `PORT`                             | Express listen port           | `3000`                          |
+| `WB_SELLER_URL`                    | WB seller catalog start URL   | (none)                          |
+| `WB_CRAWLER_CRON`                  | Cron schedule for WB crawl    | `0 */12 * * *`                  |
+| `WB_MAX_REQUESTS`                  | Max pages per crawl           | `1000`                          |
+| `WB_MAX_CONCURRENCY`               | Concurrent browser tabs       | `100`                           |
+| `WB_SCROLL_TIMES`                  | Vertical scrolls per page     | `15`                            |
+| `WB_TIME_BETWEEN_SCROLLS`          | ms between scrolls            | `500`                           |
+| `WB_ADDITIONAL_PARAMS_BUTTON_NAME` | Button text for popup         | `Все характеристики и описание` |
+| `OZON_SELLER_URL`                  | OZON seller catalog start URL | (none)                          |
+| `OZON_CRAWLER_CRON`                | Cron schedule for OZON crawl  | `0 */12 * * *`                  |
+| `OZON_MAX_REQUESTS`                | Max pages per crawl           | `1000`                          |
+| `OZON_MAX_CONCURRENCY`             | Concurrent browser tabs       | `100`                           |
+| `OZON_SCROLL_TIMES`                | Vertical scrolls per page     | `15`                            |
+| `OZON_TIME_BETWEEN_SCROLLS`        | ms between scrolls            | `500`                           |
+| `CRAWLEE_MEMORY_MBYTES`            | Crawlee memory pool (MB)      | `2048`                          |
 
 ## Gotchas
 

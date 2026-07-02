@@ -10,23 +10,35 @@ export class OZONFiles {
   constructor() {}
 
   async saveFiles(maxConcurrentRequests: number) {
-    const data = JSON.parse(fs.readFileSync(__dirname + '/../../public/data/ozon-result.json').toString()) as unknown as Data;
+    const data = JSON.parse(
+      fs
+        .readFileSync(__dirname + '/../../public/data/ozon-result.json')
+        .toString(),
+    ) as unknown as Data;
     const requestQueue = await RequestQueue.open();
     let links: Array<string> = [];
 
-    data.forEach(item => {
+    data.forEach((item) => {
       links = [...links, ...item.links];
     });
 
     await requestQueue.addRequests(createRequestQueueUrlArray(links));
 
-    const crawler = await this.#createCrawler(requestQueue, links.length, maxConcurrentRequests);
+    const crawler = await this.#createCrawler(
+      requestQueue,
+      links.length,
+      maxConcurrentRequests,
+    );
 
     await crawler.run();
     await requestQueue.drop();
   }
 
-  async #createCrawler(requestQueue: RequestQueue, maxRequests: number, maxConcurrentRequests: number) {
+  async #createCrawler(
+    requestQueue: RequestQueue,
+    maxRequests: number,
+    maxConcurrentRequests: number,
+  ) {
     const SAFEGUARD_MAX_REQUESTS = 10;
 
     return new PlaywrightCrawler({
@@ -43,14 +55,20 @@ export class OZONFiles {
         const fileName = url.split('/')[4];
         const content = await page.content();
         const productData = getOzonProductData(content);
-        
-        fs.writeFileSync(__dirname + '/../../public/' + fileName + '.html', content);
-        fs.writeFileSync(__dirname + '/../../public/' + fileName + '.json', JSON.stringify(productData, null, 2));
+
+        fs.writeFileSync(
+          __dirname + '/../../public/' + fileName + '.html',
+          content,
+        );
+        fs.writeFileSync(
+          __dirname + '/../../public/' + fileName + '.json',
+          JSON.stringify(productData, null, 2),
+        );
       },
       maxRequestsPerCrawl: maxRequests + SAFEGUARD_MAX_REQUESTS,
       maxConcurrency: maxConcurrentRequests,
       launchContext: {
-        userAgent: 'PostmanRuntime/7.39.0'
+        userAgent: 'PostmanRuntime/7.39.0',
       },
     });
   }

@@ -16,9 +16,14 @@ import type {
 dotenv.config();
 
 export class WBFiles {
-  constructor() {}
+  #debug: boolean;
+
+  constructor(debug: boolean = false) {
+    this.#debug = debug;
+  }
 
   async saveFiles() {
+    const startTime = Date.now();
     const data = JSON.parse(
       fs
         .readFileSync(__dirname + '/../../public/data/wb-result.json')
@@ -35,6 +40,11 @@ export class WBFiles {
 
     const links = Array.from(cardDataMap.keys());
 
+    if (this.#debug)
+      console.log(
+        `[wb-products] Loading ${links.length} unique links from wb-result.json`,
+      );
+
     await requestQueue.addRequests(createRequestQueueUrlArray(links));
 
     const crawler = await this.#createCrawler(
@@ -45,7 +55,18 @@ export class WBFiles {
 
     await crawler.run(links);
     await requestQueue.drop();
+
+    if (this.#debug) {
+      const elapsed = Date.now() - startTime;
+      const apiCount = this.#apiCount;
+      const cheerioCount = links.length - apiCount;
+      console.log(
+        `[wb-products] Done: ${links.length} products in ${elapsed}ms, api=${apiCount} cheerio=${cheerioCount}`,
+      );
+    }
   }
+
+  #apiCount = 0;
 
   async #createCrawler(
     requestQueue: RequestQueue,
@@ -53,6 +74,8 @@ export class WBFiles {
     cardDataMap: Map<string, CardData>,
   ) {
     const SAFEGUARD_MAX_REQUESTS = 10;
+    const debug = this.#debug;
+    const incrementApiCount = () => this.#apiCount++;
 
     return new PlaywrightCrawler({
       requestQueue,
@@ -70,6 +93,7 @@ export class WBFiles {
           images: [],
           params: [],
         };
+        let usedApi = false;
 
         if (cardData?.imagePbUrl) {
           const apiUrl = buildCardJsonUrl(cardData.imagePbUrl);
@@ -84,12 +108,27 @@ export class WBFiles {
                 response as WBCardJsonResponse,
                 content,
               );
+              usedApi = true;
+              incrementApiCount();
             } catch {
+              if (debug)
+                console.log(
+                  `[wb-products] ${url} card.json fetch failed, falling back to Cheerio`,
+                );
               productData = getWBProductData({} as WBCardJsonResponse, content);
             }
           }
         } else {
           productData = getWBProductData({} as WBCardJsonResponse, content);
+        }
+
+        if (debug) {
+          const titleSnippet = productData.title
+            ? productData.title.substring(0, 40)
+            : '?';
+          console.log(
+            `[wb-products] ${url} api=${usedApi ? 'yes' : 'no'} title="${titleSnippet}" price=${productData.price} imgs=${productData.images.length}`,
+          );
         }
 
         fs.writeFileSync(

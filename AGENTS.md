@@ -44,6 +44,7 @@ Loaded from `.env` (gitignored). Required vars:
 | Variable                    | Purpose                                                      | Default        |
 | --------------------------- | ------------------------------------------------------------ | -------------- |
 | `PORT`                      | Express listen port                                          | `3000`         |
+| `DEBUG`                     | Enables verbose console output for WB crawler                | `false`        |
 | `WB_SELLER_URL`             | WB seller catalog start URL (empty = WB crawler skipped)     | (none)         |
 | `WB_CRAWLER_CRON`           | Cron schedule for WB crawl                                   | `0 */12 * * *` |
 | `OZON_SELLER_URL`           | OZON seller catalog start URL (empty = OZON crawler skipped) | (none)         |

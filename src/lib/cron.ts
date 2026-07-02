@@ -10,6 +10,7 @@ dotenv.config();
 
 const WB_SELLER_URL = process.env.WB_SELLER_URL || '';
 const WB_CRAWLER_CRON = process.env.WB_CRAWLER_CRON || '0 */12 * * *';
+const DEBUG = process.env.DEBUG === 'true';
 
 const OZON_SELLER_URL = process.env.OZON_SELLER_URL || '';
 const OZON_MAX_REQUESTS = Number(process.env.OZON_MAX_REQUESTS) || 1000;
@@ -29,12 +30,16 @@ export const wbCrawlerTask = cron.createTask(WB_CRAWLER_CRON, async () => {
 
   await requestQueue.addRequest({ url: WB_SELLER_URL });
 
-  const crawler = await new WBCrawler().createCrawler(requestQueue);
-  const wbFiles = new WBFiles();
+  if (DEBUG) console.log('[wb] Catalog crawl starting...');
+
+  const crawler = await new WBCrawler(DEBUG).createCrawler(requestQueue);
+  const wbFiles = new WBFiles(DEBUG);
 
   await crawler.run([WB_SELLER_URL]);
   await crawler.exportData(__dirname + '/../public/data/wb-result.json');
   await requestQueue.drop();
+
+  if (DEBUG) console.log('[wb] Catalog done, starting product crawl...');
 
   await wbFiles.saveFiles();
 });

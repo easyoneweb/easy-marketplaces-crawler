@@ -1,51 +1,57 @@
 import { load } from 'cheerio';
-import type { Product, Image, Param, ParamBlock } from '../../types';
+import type {
+  Product,
+  Image,
+  Param,
+  ParamBlock,
+  WBCardJsonResponse,
+} from '../../types';
 
-export function getWBProductData(content: string): Product {
+export function buildCardJsonUrl(imagePbUrl: string): string | null {
+  const match = imagePbUrl.match(
+    /https:\/\/basket-(\d+)\.wbbasket\.ru\/vol(\d+)\/part(\d+)\/(\d+)\//,
+  );
+  if (!match) return null;
+
+  const [, cluster, vol, part, nmId] = match;
+  return `https://basket-${cluster}.wbbasket.ru/vol${vol}/part${part}/${nmId}/info/ru/card.json`;
+}
+
+export function getWBProductData(
+  cardJson: WBCardJsonResponse,
+  content: string,
+): Product {
   const $ = load(content);
 
-  const title: string = $('h1.product-page__title').text().trim();
-  let price: string = $('p.mini-product__price.wallet-price').text().trim();
+  const title: string = cardJson.imt_name || '';
+
+  let price: string = $('ins.price__lower-price.wallet-price').text().trim();
+  if (!price) {
+    price = $('.priceBlockFinalPrice--iToZR').text().trim();
+  }
+
   const images: Array<Image> = [];
-  const params: Array<Param> = [];
-  const additionalParams: Array<ParamBlock> = [];
-  const description: string = $('p.option__text').text().trim();
-
-  $('div.slide__content.img-plug img').each(function () {
-    let url = $(this).prop('src');
-    url = url?.replace('c246x328', 'c516x688');
-
-    if (!url) url = '';
-
+  $('.product-card__img-wrap.img-plug img.j-thumbnail').each(function () {
+    const url = $(this).attr('data-src-pb') || $(this).attr('src') || '';
     images.push({ url: url });
   });
 
-  $('div.product-page__options table.product-params__table tr').each(
-    function () {
-      const paramName = $(this).find('th').text().trim();
-      const paramValue = $(this).find('td').text().trim();
+  const params: Array<Param> = (cardJson.options || []).map((opt) => ({
+    name: opt.name,
+    value: opt.value,
+  }));
 
-      params.push({ name: paramName, value: paramValue });
-    },
-  );
+  const additionalParams: Array<ParamBlock> = (
+    cardJson.grouped_options || []
+  ).map((group) => ({
+    name: group.group_name,
+    params: group.options.map((opt) => ({
+      name: opt.name,
+      value: opt.value,
+    })),
+  }));
 
-  $('div.popup__content table.product-params__table').each(function () {
-    const paramBlock: ParamBlock = {
-      name: $(this).find('caption').text().trim(),
-      params: [],
-    };
-
-    $(this)
-      .find('tr')
-      .each(function () {
-        const paramName = $(this).find('th').text().trim();
-        const paramValue = $(this).find('td').text().trim();
-
-        paramBlock.params.push({ name: paramName, value: paramValue });
-      });
-
-    additionalParams.push(paramBlock);
-  });
+  const description: string = cardJson.description || '';
 
   if (!price) price = '0';
 
@@ -86,7 +92,6 @@ export function getOzonProductData(content: string): Product {
     }
   });
 
-  // КОМПЛЕКТАЦИЯ! Характеристика достается отдельно от остальных
   const paramName = $('#section-description div div div h3').text().trim();
   const paramValue = $('#section-description div div div p').text().trim();
   params.push({ name: paramName, value: paramValue });

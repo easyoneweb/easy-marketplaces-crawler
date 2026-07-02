@@ -1,29 +1,39 @@
 import fs from 'fs';
 import { PlaywrightCrawler, RequestQueue } from 'crawlee';
 import dotenv from 'dotenv';
-import { getWBProductData, createRequestQueueUrlArray } from '../helpers';
-import type { Data } from '../../../types';
+import {
+  getWBProductData,
+  createRequestQueueUrlArray,
+  buildCardJsonUrl,
+} from '../helpers';
+import type {
+  Data,
+  CardData,
+  WBCardJsonResponse,
+  Product,
+} from '../../../types';
 
 dotenv.config();
 
 export class WBFiles {
   constructor() {}
 
-  async saveFiles(
-    maxConcurrentRequests: number,
-    additionalParamsButtonName: string,
-  ) {
+  async saveFiles(maxConcurrentRequests: number) {
     const data = JSON.parse(
       fs
         .readFileSync(__dirname + '/../../public/data/wb-result.json')
         .toString(),
     ) as unknown as Data;
     const requestQueue = await RequestQueue.open();
-    let links: Array<string> = [];
+    const cardDataMap = new Map<string, CardData>();
 
     data.forEach((item) => {
-      links = [...links, ...item.links];
+      item.links.forEach((card) => {
+        cardDataMap.set(card.href, card);
+      });
     });
+
+    const links = Array.from(cardDataMap.keys());
 
     await requestQueue.addRequests(createRequestQueueUrlArray(links));
 
@@ -31,7 +41,7 @@ export class WBFiles {
       requestQueue,
       links.length,
       maxConcurrentRequests,
-      additionalParamsButtonName,
+      cardDataMap,
     );
 
     await crawler.run(links);
@@ -42,7 +52,7 @@ export class WBFiles {
     requestQueue: RequestQueue,
     maxRequests: number,
     maxConcurrentRequests: number,
-    additionalParamsButtonName: string,
+    cardDataMap: Map<string, CardData>,
   ) {
     const SAFEGUARD_MAX_REQUESTS = 10;
 
@@ -51,15 +61,38 @@ export class WBFiles {
       async requestHandler({ request, page }) {
         await page.waitForTimeout(2000);
 
-        await page
-          .getByRole('button', { name: additionalParamsButtonName })
-          .click();
-        await page.waitForTimeout(500);
-
         const url = request.loadedUrl;
         const fileName = url.split('/')[4];
         const content = await page.content();
-        const productData = getWBProductData(content);
+
+        const cardData = cardDataMap.get(url);
+        let productData: Product = {
+          title: '',
+          price: '0',
+          images: [],
+          params: [],
+        };
+
+        if (cardData?.imagePbUrl) {
+          const apiUrl = buildCardJsonUrl(cardData.imagePbUrl);
+          if (apiUrl) {
+            try {
+              const response = await page.evaluate(async (apiUrl: string) => {
+                const res = await fetch(apiUrl);
+                return res.json();
+              }, apiUrl);
+
+              productData = getWBProductData(
+                response as WBCardJsonResponse,
+                content,
+              );
+            } catch {
+              productData = getWBProductData({} as WBCardJsonResponse, content);
+            }
+          }
+        } else {
+          productData = getWBProductData({} as WBCardJsonResponse, content);
+        }
 
         fs.writeFileSync(
           __dirname + '/../../public/' + fileName + '.html',

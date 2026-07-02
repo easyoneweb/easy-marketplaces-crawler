@@ -2,7 +2,13 @@ export type Data = [SellerPageLinks] | [];
 
 export type SellerPageLinks = {
   url: string;
-  links: Array<string>;
+  links: Array<CardData>;
+};
+
+export type CardData = {
+  href: string;
+  nmId: string;
+  imagePbUrl?: string;
 };
 
 export type Product = {
@@ -26,4 +32,18 @@ export type Param = {
 export type ParamBlock = {
   name: string;
   params: Array<Param>;
+};
+
+export type WBCardJsonResponse = {
+  imt_id: number;
+  nm_id: number;
+  imt_name: string;
+  description: string;
+  options: Array<{ name: string; value: string; charc_type?: number }>;
+  grouped_options?: Array<{
+    group_name: string;
+    options: Array<{ name: string; value: string; charc_type?: number }>;
+  }>;
+  media?: { photo_count: number };
+  selling?: { brand_name: string; brand_hash: string; supplier_id: number };
 };

@@ -16,10 +16,12 @@ export class OZONFiles {
         .toString(),
     ) as unknown as Data;
     const requestQueue = await RequestQueue.open();
-    let links: Array<string> = [];
+    const links: Array<string> = [];
 
     data.forEach((item) => {
-      links = [...links, ...item.links];
+      item.links.forEach((card) => {
+        links.push(card.href);
+      });
     });
 
     await requestQueue.addRequests(createRequestQueueUrlArray(links));

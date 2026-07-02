@@ -14,9 +14,6 @@ const WB_MAX_CONCURRENCY = Number(process.env.WB_MAX_CONCURRENCY) || 100;
 const WB_SCROLL_TIMES = Number(process.env.WB_SCROLL_TIMES) || 15;
 const WB_TIME_BETWEEN_SCROLLS =
   Number(process.env.WB_TIME_BETWEEN_SCROLLS) || 500;
-const WB_ADDITIONAL_PARAMS_BUTTON_NAME =
-  process.env.WB_ADDITIONAL_PARAMS_BUTTON_NAME ||
-  'Все характеристики и описание';
 const WB_CRAWLER_CRON = process.env.WB_CRAWLER_CRON || '0 */12 * * *';
 
 const OZON_SELLER_URL = process.env.OZON_SELLER_URL || '';
@@ -50,7 +47,7 @@ export const wbCrawlerTask = cron.createTask(WB_CRAWLER_CRON, async () => {
   await crawler.exportData(__dirname + '/../public/data/wb-result.json');
   await requestQueue.drop();
 
-  await wbFiles.saveFiles(WB_MAX_CONCURRENCY, WB_ADDITIONAL_PARAMS_BUTTON_NAME);
+  await wbFiles.saveFiles(WB_MAX_CONCURRENCY);
 });
 
 export const ozonCrawlerTask = cron.createTask(OZON_CRAWLER_CRON, async () => {

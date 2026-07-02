@@ -1,5 +1,6 @@
 import { PlaywrightCrawler, RequestQueue, Dataset } from 'crawlee';
 import { load } from 'cheerio';
+import type { CardData } from '../../../types';
 
 export class OZONCrawler {
   constructor() {}
@@ -54,14 +55,17 @@ export class OZONCrawler {
   #getLinks(content: string) {
     const OZON_BASE_URL = 'https://www.ozon.ru';
     const $ = load(content);
-    const links: Array<string> = [];
+    const links: CardData[] = [];
 
     let nextUrl = $('[data-widget=megaPaginator] div div a:last').attr('href');
     if (nextUrl) nextUrl = OZON_BASE_URL + nextUrl;
 
     $('div.tile-root a.tile-hover-target').each(function () {
       const href = $(this).attr('href');
-      if (href) links.push(OZON_BASE_URL + href.split('?')[0]);
+      if (href) {
+        const cleanHref = OZON_BASE_URL + href.split('?')[0];
+        links.push({ href: cleanHref, nmId: '' });
+      }
     });
 
     return { nextUrl: nextUrl, links: links };

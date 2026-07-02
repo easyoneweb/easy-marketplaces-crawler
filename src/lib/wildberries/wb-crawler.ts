@@ -2,7 +2,7 @@ import { PlaywrightCrawler, RequestQueue, Dataset } from 'crawlee';
 import { chromium } from 'playwright-extra';
 import stealth from 'puppeteer-extra-plugin-stealth';
 import { load } from 'cheerio';
-import fs from 'fs';
+import type { CardData } from '../../../types';
 
 chromium.use(stealth());
 
@@ -16,7 +16,7 @@ export class WBCrawler {
     scrollTimes: number,
     timeBetweenScrolls: number,
   ): Promise<PlaywrightCrawler> {
-    const getLinks = this.#getLinks;
+    const getCardData = this.#getCardData;
     const dataset = await Dataset.open();
     await dataset.drop();
 
@@ -30,28 +30,43 @@ export class WBCrawler {
         userAgent:
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
       },
-      async requestHandler({ request, page, enqueueLinks, pushData }) {
+      async requestHandler({ request, page, pushData }) {
         await page.waitForTimeout(2000 + Math.random() * 1000);
 
-        for (let i = 0; i < scrollTimes; i++) {
-          await page.waitForTimeout(timeBetweenScrolls + Math.random() * 500);
-          await page.evaluate(() => window.scrollBy(0, 500));
+        let prevCardCount = 0;
+        let stableCount = 0;
+        const maxBatchIterations = maxRequests;
+        let batchIteration = 0;
+
+        while (batchIteration < maxBatchIterations) {
+          for (let i = 0; i < scrollTimes; i++) {
+            await page.waitForTimeout(timeBetweenScrolls + Math.random() * 500);
+            await page.evaluate(() => window.scrollBy(0, 500));
+          }
+
+          await page.waitForTimeout(2000);
+
+          const content = await page.content();
+          const cardData = getCardData(content);
+          const currentCount = cardData.length;
+
+          if (currentCount === prevCardCount) {
+            stableCount++;
+            if (stableCount >= 3) {
+              break;
+            }
+          } else {
+            stableCount = 0;
+            prevCardCount = currentCount;
+          }
+
+          batchIteration++;
         }
 
-        const content = await page.content();
-        fs.writeFileSync(
-          __dirname + '/../../public/' + 'test' + '.html',
-          content,
-        );
-        const { nextUrl, links } = getLinks(content);
+        const finalContent = await page.content();
+        const links = getCardData(finalContent);
 
         await pushData({ url: request.loadedUrl, links: links });
-
-        if (nextUrl) {
-          await enqueueLinks({
-            globs: [nextUrl],
-          });
-        }
       },
       maxRequestsPerCrawl: maxRequests,
       maxConcurrency: maxConcurrentRequests,
@@ -64,19 +79,30 @@ export class WBCrawler {
     });
   }
 
-  #getLinks(content: string) {
+  #getCardData(content: string): CardData[] {
     const $ = load(content);
-    const links: Array<string> = [];
-
-    const nextUrl = $('a.pagination-next.pagination__next.j-next-page').attr(
-      'href',
-    );
+    const links: CardData[] = [];
 
     $('a.product-card__link.j-card-link').each(function () {
       const href = $(this).attr('href');
-      if (href) links.push(href.split('?')[0]);
+      if (!href) return;
+
+      const cleanHref = href.split('?')[0];
+
+      const card = $(this).closest('.product-card');
+      const img = card.find('.product-card__img-wrap img.j-thumbnail');
+      const imagePbUrl = img.attr('data-src-pb');
+
+      const nmIdMatch = cleanHref.match(/\/catalog\/(\d+)\//);
+      const nmId = nmIdMatch ? nmIdMatch[1] : '';
+
+      links.push({
+        href: cleanHref,
+        nmId: nmId,
+        imagePbUrl: imagePbUrl || undefined,
+      });
     });
 
-    return { nextUrl: nextUrl, links: links };
+    return links;
   }
 }

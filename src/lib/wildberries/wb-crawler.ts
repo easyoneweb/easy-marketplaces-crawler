@@ -9,19 +9,14 @@ chromium.use(stealth());
 export class WBCrawler {
   constructor() {}
 
-  async createCrawler(
-    requestQueue: RequestQueue,
-    maxRequests: number,
-    maxConcurrentRequests: number,
-    scrollTimes: number,
-    timeBetweenScrolls: number,
-  ): Promise<PlaywrightCrawler> {
+  async createCrawler(requestQueue: RequestQueue): Promise<PlaywrightCrawler> {
     const getCardData = this.#getCardData;
     const dataset = await Dataset.open();
     await dataset.drop();
 
     return new PlaywrightCrawler({
       requestQueue,
+      requestHandlerTimeoutSecs: 300,
       browserPoolOptions: {
         useFingerprints: true,
       },
@@ -35,15 +30,12 @@ export class WBCrawler {
 
         let prevCardCount = 0;
         let stableCount = 0;
-        const maxBatchIterations = maxRequests;
-        let batchIteration = 0;
+        const MAX_ITERATIONS = 50;
 
-        while (batchIteration < maxBatchIterations) {
-          for (let i = 0; i < scrollTimes; i++) {
-            await page.waitForTimeout(timeBetweenScrolls + Math.random() * 500);
-            await page.evaluate(() => window.scrollBy(0, 500));
-          }
-
+        for (let i = 0; i < MAX_ITERATIONS; i++) {
+          await page.evaluate(() =>
+            window.scrollTo(0, document.body.scrollHeight),
+          );
           await page.waitForTimeout(2000);
 
           const content = await page.content();
@@ -59,8 +51,6 @@ export class WBCrawler {
             stableCount = 0;
             prevCardCount = currentCount;
           }
-
-          batchIteration++;
         }
 
         const finalContent = await page.content();
@@ -68,8 +58,8 @@ export class WBCrawler {
 
         await pushData({ url: request.loadedUrl, links: links });
       },
-      maxRequestsPerCrawl: maxRequests,
-      maxConcurrency: maxConcurrentRequests,
+      maxRequestsPerCrawl: 1,
+      maxConcurrency: 1,
       preNavigationHooks: [
         async (crawlingContext) => {
           const { page } = crawlingContext;

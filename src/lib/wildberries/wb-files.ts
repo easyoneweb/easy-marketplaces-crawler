@@ -18,7 +18,7 @@ dotenv.config();
 export class WBFiles {
   constructor() {}
 
-  async saveFiles(maxConcurrentRequests: number) {
+  async saveFiles() {
     const data = JSON.parse(
       fs
         .readFileSync(__dirname + '/../../public/data/wb-result.json')
@@ -40,7 +40,6 @@ export class WBFiles {
     const crawler = await this.#createCrawler(
       requestQueue,
       links.length,
-      maxConcurrentRequests,
       cardDataMap,
     );
 
@@ -51,7 +50,6 @@ export class WBFiles {
   async #createCrawler(
     requestQueue: RequestQueue,
     maxRequests: number,
-    maxConcurrentRequests: number,
     cardDataMap: Map<string, CardData>,
   ) {
     const SAFEGUARD_MAX_REQUESTS = 10;
@@ -104,7 +102,7 @@ export class WBFiles {
         );
       },
       maxRequestsPerCrawl: maxRequests + SAFEGUARD_MAX_REQUESTS,
-      maxConcurrency: maxConcurrentRequests,
+      maxConcurrency: 5,
     });
   }
 }

@@ -9,11 +9,6 @@ import { OZONFiles } from './ozon/ozon-files';
 dotenv.config();
 
 const WB_SELLER_URL = process.env.WB_SELLER_URL || '';
-const WB_MAX_REQUESTS = Number(process.env.WB_MAX_REQUESTS) || 1000;
-const WB_MAX_CONCURRENCY = Number(process.env.WB_MAX_CONCURRENCY) || 100;
-const WB_SCROLL_TIMES = Number(process.env.WB_SCROLL_TIMES) || 15;
-const WB_TIME_BETWEEN_SCROLLS =
-  Number(process.env.WB_TIME_BETWEEN_SCROLLS) || 500;
 const WB_CRAWLER_CRON = process.env.WB_CRAWLER_CRON || '0 */12 * * *';
 
 const OZON_SELLER_URL = process.env.OZON_SELLER_URL || '';
@@ -34,20 +29,14 @@ export const wbCrawlerTask = cron.createTask(WB_CRAWLER_CRON, async () => {
 
   await requestQueue.addRequest({ url: WB_SELLER_URL });
 
-  const crawler = await new WBCrawler().createCrawler(
-    requestQueue,
-    WB_MAX_REQUESTS,
-    WB_MAX_CONCURRENCY,
-    WB_SCROLL_TIMES,
-    WB_TIME_BETWEEN_SCROLLS,
-  );
+  const crawler = await new WBCrawler().createCrawler(requestQueue);
   const wbFiles = new WBFiles();
 
   await crawler.run([WB_SELLER_URL]);
   await crawler.exportData(__dirname + '/../public/data/wb-result.json');
   await requestQueue.drop();
 
-  await wbFiles.saveFiles(WB_MAX_CONCURRENCY);
+  await wbFiles.saveFiles();
 });
 
 export const ozonCrawlerTask = cron.createTask(OZON_CRAWLER_CRON, async () => {

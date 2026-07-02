@@ -46,10 +46,6 @@ Loaded from `.env` (gitignored). Required vars:
 | `PORT`                      | Express listen port                                          | `3000`         |
 | `WB_SELLER_URL`             | WB seller catalog start URL (empty = WB crawler skipped)     | (none)         |
 | `WB_CRAWLER_CRON`           | Cron schedule for WB crawl                                   | `0 */12 * * *` |
-| `WB_MAX_REQUESTS`           | Max pages per crawl                                          | `1000`         |
-| `WB_MAX_CONCURRENCY`        | Concurrent browser tabs                                      | `100`          |
-| `WB_SCROLL_TIMES`           | Vertical scrolls per page                                    | `15`           |
-| `WB_TIME_BETWEEN_SCROLLS`   | ms between scrolls                                           | `500`          |
 | `OZON_SELLER_URL`           | OZON seller catalog start URL (empty = OZON crawler skipped) | (none)         |
 | `OZON_CRAWLER_CRON`         | Cron schedule for OZON crawl                                 | `0 */12 * * *` |
 | `OZON_MAX_REQUESTS`         | Max pages per crawl                                          | `1000`         |

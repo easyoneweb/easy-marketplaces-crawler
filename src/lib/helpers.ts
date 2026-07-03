@@ -4,6 +4,7 @@ import type {
   Image,
   Param,
   ParamBlock,
+  StockInfo,
   WBCardJsonResponse,
 } from '../../types';
 
@@ -20,6 +21,7 @@ export function buildCardJsonUrl(imagePbUrl: string): string | null {
 export function getWBProductData(
   cardJson: WBCardJsonResponse,
   content: string,
+  stockData?: Array<StockInfo>,
 ): Product {
   const $ = load(content);
 
@@ -115,6 +117,39 @@ export function getWBProductData(
 
   if (!price) price = '0';
 
+  const stock: Array<StockInfo> = stockData || [];
+
+  if (!stock.length) {
+    $('[class*="delivery"], [class*="order-delivery"]').each(function () {
+      const text = $(this).text().trim();
+      const info: StockInfo = {};
+
+      const qtyMatch = text.match(/осталось\s*(\d+)\s*шт/i);
+      if (qtyMatch) {
+        info.quantity = parseInt(qtyMatch[1], 10);
+        info.quantityText = qtyMatch[0];
+      }
+
+      if (text.includes('Склад Wildberries') || text.includes('склад WB')) {
+        info.warehouseName = 'WB';
+      } else if (
+        text.includes('Склад продавца') ||
+        text.includes('склад продавца')
+      ) {
+        info.warehouseName = 'seller';
+      }
+
+      const daysMatch = text.match(/(\d+)\s*(?:день|дня|дней)/i);
+      if (daysMatch) {
+        info.deliveryDays = parseInt(daysMatch[1], 10);
+      }
+
+      if (Object.keys(info).length > 0) {
+        stock.push(info);
+      }
+    });
+  }
+
   return {
     title: title,
     price: price,
@@ -122,6 +157,7 @@ export function getWBProductData(
     params: params,
     additionalParams: additionalParams,
     description: description,
+    stock: stock.length > 0 ? stock : undefined,
   };
 }
 

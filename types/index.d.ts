@@ -18,10 +18,19 @@ export type Product = {
   params: Array<Param>;
   additionalParams?: Array<ParamBlock>;
   description?: string;
+  stock?: Array<StockInfo>;
 };
 
 export type Image = {
   url: string;
+};
+
+export type StockInfo = {
+  warehouseId?: number;
+  warehouseName?: string;
+  quantity?: number;
+  quantityText?: string;
+  deliveryDays?: number;
 };
 
 export type Param = {

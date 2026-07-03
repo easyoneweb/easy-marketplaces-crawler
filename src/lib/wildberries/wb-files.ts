@@ -99,10 +99,13 @@ export class WBFiles {
           const apiUrl = buildCardJsonUrl(cardData.imagePbUrl);
           if (apiUrl) {
             try {
-              const response = await page.evaluate(async (apiUrl: string) => {
-                const res = await fetch(apiUrl);
-                return res.json();
-              }, apiUrl);
+              const apiResponse = await page.request.get(apiUrl, {
+                timeout: 10000,
+              });
+              if (!apiResponse.ok()) {
+                throw new Error(`HTTP ${apiResponse.status()}`);
+              }
+              const response = await apiResponse.json();
 
               productData = getWBProductData(
                 response as WBCardJsonResponse,

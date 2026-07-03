@@ -23,16 +23,76 @@ export function getWBProductData(
 ): Product {
   const $ = load(content);
 
-  const title: string = cardJson.imt_name || '';
+  let title: string = cardJson.imt_name || '';
 
-  let price: string = $('ins.price__lower-price.wallet-price').text().trim();
+  if (!title) {
+    title = $('h1').first().text().trim();
+    if (!title || title === 'Что-то не так...') {
+      const excludeWords = [
+        '₽',
+        'оцен',
+        'вопрос',
+        'артикул',
+        'вид ',
+        'жизнен',
+        'гибрид',
+        'солнеч',
+        'сортов',
+        'характеристик',
+        'возврат',
+        'семена',
+        'в каталог',
+        'хорошая',
+        'купить',
+        'добавить',
+        'июл',
+        'склад',
+        'главная',
+        'хиты',
+        'похожие',
+        'загружаем',
+        'шт.',
+        'цена',
+      ];
+      $('[class*="mo-typography"][class*="body"]').each(function () {
+        if (title) return;
+        const text = $(this).text().trim();
+        const lowerText = text.toLowerCase();
+        if (
+          text.length > 10 &&
+          text.length < 120 &&
+          !excludeWords.some((w) => lowerText.includes(w))
+        ) {
+          title = text;
+        }
+      });
+    }
+  }
+
+  let price: string = $('ins.price__lower-price.wallet-price')
+    .first()
+    .text()
+    .trim();
   if (!price) {
-    price = $('.priceBlockFinalPrice--iToZR').text().trim();
+    price = $('.priceBlockFinalPrice--iToZR').first().text().trim();
   }
 
   const images: Array<Image> = [];
-  $('.product-card__img-wrap.img-plug img.j-thumbnail').each(function () {
-    const url = $(this).attr('data-src-pb') || $(this).attr('src') || '';
+  const candidateImages = new Map<string, { url: string; isBig: boolean }>();
+  $('img').each(function () {
+    const url = $(this).attr('src') || $(this).attr('data-src-pb') || '';
+    const isBig = url.includes('/images/big/');
+    const isProduct = url.includes('/images/c246x328/');
+    if (url && (isBig || isProduct)) {
+      const idMatch = url.match(/\/(\d+)\.webp$/);
+      const imageId = idMatch ? idMatch[1] : url;
+      const existing = candidateImages.get(imageId);
+      if (!existing || (isBig && !existing.isBig)) {
+        candidateImages.set(imageId, { url, isBig });
+      }
+    }
+  });
+  candidateImages.forEach(({ url }) => {
     images.push({ url: url });
   });
 

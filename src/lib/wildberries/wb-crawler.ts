@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { PlaywrightCrawler, RequestQueue, Dataset } from 'crawlee';
 import { chromium } from 'playwright-extra';
 import stealth from 'puppeteer-extra-plugin-stealth';
@@ -32,11 +33,49 @@ export class WBCrawler {
       },
       async requestHandler({ request, page, pushData }) {
         const startTime = Date.now();
+        const url = request.loadedUrl;
 
-        if (debug)
-          console.log(`[wb-catalog] Starting crawl: ${request.loadedUrl}`);
+        if (debug) console.log(`[wb-catalog] Starting crawl: ${url}`);
 
         await page.waitForTimeout(2000 + Math.random() * 1000);
+
+        let cardsAppeared = false;
+
+        try {
+          await page.waitForSelector('a.product-card__link.j-card-link', {
+            timeout: 60000,
+          });
+          cardsAppeared = true;
+        } catch {
+          // timeout — page content never loaded (anti-bot or other issue)
+        }
+
+        if (!cardsAppeared) {
+          if (debug) {
+            const content = await page.content();
+            const antiBotDetected =
+              content.includes('c_cont') ||
+              content.includes('antibot') ||
+              content.includes('Почти готово');
+            console.log(
+              `[wb-catalog] Page did not load after 60s, anti-bot detected: ${antiBotDetected}`,
+            );
+
+            const debugDir = __dirname + '/../../storage/debug';
+            fs.mkdirSync(debugDir, { recursive: true });
+            const timestamp = Date.now();
+            const htmlPath = `${debugDir}/${timestamp}.html`;
+            const pngPath = `${debugDir}/${timestamp}.png`;
+            fs.writeFileSync(htmlPath, content);
+            await page.screenshot({ path: pngPath, fullPage: true });
+            console.log(
+              `[wb-catalog] Debug dump saved: ${htmlPath}, ${pngPath}`,
+            );
+          }
+
+          await pushData({ url: url, links: [] });
+          return;
+        }
 
         let prevCardCount = 0;
         let stableCount = 0;

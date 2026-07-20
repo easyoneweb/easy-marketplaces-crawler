@@ -13,11 +13,6 @@ const WB_CRAWLER_CRON = process.env.WB_CRAWLER_CRON || '0 */12 * * *';
 const DEBUG = process.env.DEBUG === 'true';
 
 const OZON_SELLER_URL = process.env.OZON_SELLER_URL || '';
-const OZON_MAX_REQUESTS = Number(process.env.OZON_MAX_REQUESTS) || 1000;
-const OZON_MAX_CONCURRENCY = Number(process.env.OZON_MAX_CONCURRENCY) || 100;
-const OZON_SCROLL_TIMES = Number(process.env.OZON_SCROLL_TIMES) || 15;
-const OZON_TIME_BETWEEN_SCROLLS =
-  Number(process.env.OZON_TIME_BETWEEN_SCROLLS) || 500;
 const OZON_CRAWLER_CRON = process.env.OZON_CRAWLER_CRON || '0 */12 * * *';
 
 export const wbCrawlerTask = cron.createTask(WB_CRAWLER_CRON, async () => {
@@ -54,18 +49,16 @@ export const ozonCrawlerTask = cron.createTask(OZON_CRAWLER_CRON, async () => {
 
   await requestQueue.addRequest({ url: OZON_SELLER_URL });
 
-  const crawler = await new OZONCrawler().createCrawler(
-    requestQueue,
-    OZON_MAX_REQUESTS,
-    OZON_MAX_CONCURRENCY,
-    OZON_SCROLL_TIMES,
-    OZON_TIME_BETWEEN_SCROLLS,
-  );
-  const ozonFiles = new OZONFiles();
+  if (DEBUG) console.log('[ozon] Catalog crawl starting...');
+
+  const crawler = await new OZONCrawler(DEBUG).createCrawler(requestQueue);
+  const ozonFiles = new OZONFiles(DEBUG);
 
   await crawler.run();
   await crawler.exportData(__dirname + '/../public/data/ozon-result.json');
   await requestQueue.drop();
 
-  await ozonFiles.saveFiles(OZON_MAX_CONCURRENCY);
+  if (DEBUG) console.log('[ozon] Catalog done, starting product crawl...');
+
+  await ozonFiles.saveFiles();
 });

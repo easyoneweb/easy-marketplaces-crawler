@@ -165,38 +165,47 @@ export function getOzonProductData(content: string): Product {
   const $ = load(content);
 
   const title: string = $('[data-widget="webProductHeading"] h1').text().trim();
-  let price: string = $(
-    '[data-widget="webPrice"] div div button span div div div div span',
-  )
+  let price: string = $('[data-widget="webPrice"] span.tsHeadline600Large')
+    .first()
     .text()
     .trim();
+  if (!price) {
+    price = $('[data-widget="webPrice"] .tsHeadline600Large')
+      .first()
+      .text()
+      .trim();
+  }
   const images: Array<Image> = [];
   const params: Array<Param> = [];
   const additionalParams: Array<ParamBlock> = [];
-  const description: string = $('#section-description div div div div')
-    .text()
-    .trim();
+  const description: string = $('#section-description').text().trim();
 
-  $(
-    '[data-widget=webGallery] div div div div div div div div div div div img',
-  ).each(function () {
-    let src = $(this).attr('src');
+  $('[data-widget=webGallery] img').each(function () {
+    const src = $(this).attr('src');
 
     if (src) {
-      src = src.replace('wc50', 'wc1000');
       images.push({ url: src });
     }
   });
-
-  const paramName = $('#section-description div div div h3').text().trim();
-  const paramValue = $('#section-description div div div p').text().trim();
-  params.push({ name: paramName, value: paramValue });
 
   $('#section-characteristics div div div dl').each(function () {
     const paramName = $(this).find('dt').text().trim();
     const paramValue = $(this).find('dd').text().trim();
     params.push({ name: paramName, value: paramValue });
   });
+
+  if (!params.length) {
+    $('#section-characteristics div div').each(function () {
+      const text = $(this).text().trim();
+      const colonIndex = text.indexOf(':');
+      if (colonIndex > 0) {
+        params.push({
+          name: text.substring(0, colonIndex).trim(),
+          value: text.substring(colonIndex + 1).trim(),
+        });
+      }
+    });
+  }
 
   if (!price) price = '0';
 
@@ -207,6 +216,7 @@ export function getOzonProductData(content: string): Product {
     params: params,
     additionalParams: additionalParams,
     description: description,
+    stock: undefined,
   };
 }
 

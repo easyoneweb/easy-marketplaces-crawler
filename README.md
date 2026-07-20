@@ -46,14 +46,12 @@ Application is using environment variables. You have to define:
 
 - NODE_ENV (development or production)
 - PORT (on which the server will run locally)
-- WB_SELLER_URL (seller's main page on Wildberries)
-- WB_MAX_REQUESTS (max requests to be made per crawl, default is 1000)
-- WB_MAX_CONCURRENCY (max concurrent request to handle by the WBCrawler, default is 100)
-- WB_SCROLL_TIMES (how many times to vertically scroll of the page by 500px, default is 15)
-- WB_TIME_BETWEEN_SCROLLS (time in ms between each scroll, try different numbers to achieve full page load including execution of javascript and service workers, default is 500)
-- WB_ADDITIONAL_PARAMS_BUTTON_NAME (text content of the button for popup show on Wildberries website, default is Все характеристики и описание)
-- WB_CRAWLER_CRON (cron time for running wb crawler task, default is every 12th hour which is 0 */12 * * *)
-- CRAWLEE_MEMORY_MBYTES (allowed memory pool to use by Crawlee library, default is 2048).
+- DEBUG (enables verbose console output for both crawlers, default false)
+- WB_SELLER_URL (seller's main page on Wildberries, empty = WB crawler skipped)
+- WB_CRAWLER_CRON (cron time for running wb crawler task, default is every 12th hour: 0 */12 * * *)
+- OZON_SELLER_URL (seller's main page on OZON, empty = OZON crawler skipped)
+- OZON_CRAWLER_CRON (cron time for running ozon crawler task, default is every 12th hour: 0 */12 * * *)
+- CRAWLEE_MEMORY_MBYTES (allowed memory pool to use by Crawlee library, default is 4096).
 
 You can define all needed variables in .env file in root folder of this application.
 
@@ -68,5 +66,6 @@ EasyOneWeb LLC 2020 - 2024. All rights reserved. See LICENSE.md for licensing an
 # TODO:
 
 - [x] Released: version 1.1.0. Original task: SAVE EXPORT JSON DATA BY OUR CLASS! NOT BY CRAWLEE STORAGE! Because data persists in datasets, which creates dublicate data in wb-result.json and ozon-result.json!
+- [ ] **OZON catalog crawler: not production-ready.** The OZON seller page requires browser cookies to bypass anti-bot challenges. The catalog API integration (`entrypoint-api.bx`) is partially implemented but blocked by OZON's anti-bot measures. Currently only extracts ~8 products via SSR fallback instead of the full ~300 seller catalog. See AGENTS.md for technical details.
 - [ ] locate warehouse stock of the product
 - [ ] migrate scraping from cheerio to PlayWright's locator
